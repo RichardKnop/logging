@@ -2,9 +2,6 @@
 
 A simple leveled logging library with coloured output.
 
-[![Travis Status for RichardKnop/logging](https://travis-ci.org/RichardKnop/logging.svg?branch=master&label=linux+build)](https://travis-ci.org/RichardKnop/logging)
-[![godoc for RichardKnop/logging](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/logging)
-
 ---
 
 Log levels:
