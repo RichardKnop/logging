@@ -17,7 +17,7 @@ func TestColouredFormatter(t *testing.T) {
 
 	var (
 		out, errOut = bytes.NewBuffer([]byte{}), bytes.NewBuffer([]byte{})
-		logger      = logging.New(out, errOut, new(logging.ColouredFormatter))
+		logger      = logging.New(out, errOut, logging.WithFormatter(new(logging.ColouredFormatter)))
 		now         time.Time
 		actual      []byte
 		expected    string

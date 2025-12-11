@@ -13,9 +13,9 @@ const (
 
 // Formatter interface
 type Formatter interface {
-	GetPrefix(lvl level) string
-	Format(lvl level, v ...interface{}) []interface{}
-	GetSuffix(lvl level) string
+	GetPrefix(lvl Level) string
+	Format(lvl Level, v ...interface{}) []interface{}
+	GetSuffix(lvl Level) string
 }
 
 // Returns header including filename and line number

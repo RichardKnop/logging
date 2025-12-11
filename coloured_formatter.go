@@ -11,7 +11,7 @@ const (
 )
 
 // Colour map
-var colour = map[level]string{
+var colour = map[Level]string{
 	INFO:    fmt.Sprintf(colourSeq, 94), // blue
 	WARNING: fmt.Sprintf(colourSeq, 95), // pink
 	ERROR:   fmt.Sprintf(colourSeq, 91), // red
@@ -25,16 +25,16 @@ type ColouredFormatter struct {
 }
 
 // GetPrefix returns colour escape code
-func (f *ColouredFormatter) GetPrefix(lvl level) string {
+func (f *ColouredFormatter) GetPrefix(lvl Level) string {
 	return colour[lvl]
 }
 
 // GetSuffix returns reset sequence code
-func (f *ColouredFormatter) GetSuffix(lvl level) string {
+func (f *ColouredFormatter) GetSuffix(lvl Level) string {
 	return resetSeq
 }
 
 // Format adds filename and line number before the log message
-func (f *ColouredFormatter) Format(lvl level, v ...interface{}) []interface{} {
+func (f *ColouredFormatter) Format(lvl Level, v ...interface{}) []interface{} {
 	return append([]interface{}{header()}, v...)
 }

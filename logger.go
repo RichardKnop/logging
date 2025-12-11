@@ -7,25 +7,25 @@ import (
 )
 
 // Level type
-type level int
+type Level int
 
 const (
-	// DEBUG level
-	DEBUG level = iota
-	// INFO level
+	// DEBUG Level
+	DEBUG Level = iota
+	// INFO Level
 	INFO
-	// WARNING level
+	// WARNING Level
 	WARNING
-	// ERROR level
+	// ERROR Level
 	ERROR
-	// FATAL level
+	// FATAL Level
 	FATAL
 
 	flag = log.Ldate | log.Ltime
 )
 
-// Log level prefix map
-var prefix = map[level]string{
+// Log Level prefix map
+var prefix = map[Level]string{
 	DEBUG:   "DEBUG: ",
 	INFO:    "INFO: ",
 	WARNING: "WARNING: ",
@@ -34,10 +34,25 @@ var prefix = map[level]string{
 }
 
 // Logger ...
-type Logger map[level]LoggerInterface
+type Logger map[Level]LoggerInterface
 
-// New returns instance of Logger
-func New(out, errOut io.Writer, f Formatter) Logger {
+// New returns instance of Logger.
+func New(out, errOut io.Writer, ops ...ConfigOption) Logger {
+	config := defaultConfig()
+
+	for _, op := range ops {
+		op(config)
+	}
+
+	// If log level is out of bounds, set to nearest valid level.
+	if config.LogLevel < DEBUG {
+		config.LogLevel = DEBUG
+	}
+
+	if config.LogLevel > FATAL {
+		config.LogLevel = FATAL
+	}
+
 	// Fall back to stdout if out not set
 	if out == nil {
 		out = os.Stdout
@@ -48,24 +63,26 @@ func New(out, errOut io.Writer, f Formatter) Logger {
 		errOut = os.Stderr
 	}
 
-	// Fall back to DefaultFormatter if f not set
-	if f == nil {
-		f = new(DefaultFormatter)
+	l := make(map[Level]LoggerInterface, 5)
+
+	for level := DEBUG; level <= FATAL; level++ {
+		l[level] = NewNoOp()
+
+		if level >= config.LogLevel {
+			l[level] = &Wrapper{
+				lvl:       level,
+				formatter: config.Formatter,
+				logger:    log.New(out, config.Formatter.GetPrefix(level)+prefix[level], flag),
+			}
+		}
 	}
 
-	l := make(map[level]LoggerInterface, 5)
-	l[DEBUG] = &Wrapper{lvl: DEBUG, formatter: f, logger: log.New(out, f.GetPrefix(DEBUG)+prefix[DEBUG], flag)}
-	l[INFO] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(out, f.GetPrefix(INFO)+prefix[INFO], flag)}
-	l[WARNING] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(out, f.GetPrefix(WARNING)+prefix[WARNING], flag)}
-	l[ERROR] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(errOut, f.GetPrefix(ERROR)+prefix[ERROR], flag)}
-	l[FATAL] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(errOut, f.GetPrefix(FATAL)+prefix[FATAL], flag)}
-
-	return Logger(l)
+	return l
 }
 
 // Wrapper ...
 type Wrapper struct {
-	lvl       level
+	lvl       Level
 	formatter Formatter
 	logger    LoggerInterface
 }
